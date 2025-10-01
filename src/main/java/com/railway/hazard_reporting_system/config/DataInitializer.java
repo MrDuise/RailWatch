@@ -73,9 +73,37 @@ public class DataInitializer implements CommandLineRunner {
             ns.setWebsiteUrl("https://www.nscorp.com");
             railroadCompanyRepository.save(ns);
 
+            // Sound Transit (operates on BNSF tracks but worth noting for commuter service)
+            RailroadCompany soundTransit = new RailroadCompany("Sound Transit", "ST");
+            soundTransit.setDescription("Regional transit authority operating commuter rail on BNSF-owned tracks");
+            soundTransit.setHeadquartersLocation("Seattle, Washington");
+            soundTransit.setContactEmail("customerservice@soundtransit.org");
+            soundTransit.setContactPhone("1-888-889-6368");
+            soundTransit.setWebsiteUrl("https://www.soundtransit.org");
+            railroadCompanyRepository.save(soundTransit);
+
+            // Seattle Terminal Railways
+            RailroadCompany seattleTerminal = new RailroadCompany("Port of Seattle", "POS");
+            seattleTerminal.setDescription("Port of Seattle terminal railway operations");
+            seattleTerminal.setHeadquartersLocation("Seattle, Washington");
+            seattleTerminal.setContactEmail("portinfo@portseattle.org");
+            seattleTerminal.setContactPhone("206-787-3000");
+            seattleTerminal.setWebsiteUrl("https://www.portseattle.org");
+            railroadCompanyRepository.save(seattleTerminal);
+
+            // Tacoma Rail
+            RailroadCompany tacomaRail = new RailroadCompany("Tacoma Rail", "TMBL");
+            tacomaRail.setDescription("City of Tacoma municipal railroad");
+            tacomaRail.setHeadquartersLocation("Tacoma, Washington");
+            tacomaRail.setContactEmail("rail@cityoftacoma.org");
+            tacomaRail.setContactPhone("253-502-8700");
+            tacomaRail.setWebsiteUrl("https://www.tacomarail.com");
+            railroadCompanyRepository.save(tacomaRail);
+
             System.out.println("Railroad Companies initialized successfully!");
         }
     }
+
 
     private void initializeRailSegments() {
         if (railSegmentRepository.count() == 0) {
@@ -85,6 +113,9 @@ public class DataInitializer implements CommandLineRunner {
             RailroadCompany up = railroadCompanyRepository.findByCode("UP").orElseThrow();
             RailroadCompany csx = railroadCompanyRepository.findByCode("CSX").orElseThrow();
             RailroadCompany ns = railroadCompanyRepository.findByCode("NS").orElseThrow();
+            RailroadCompany soundTransit = railroadCompanyRepository.findByCode("ST").orElseThrow();
+            RailroadCompany portSeattle = railroadCompanyRepository.findByCode("POS").orElseThrow();
+            RailroadCompany tacomaRail = railroadCompanyRepository.findByCode("TMBL").orElseThrow();
 
             // BNSF Segments
             createRailSegment("BNSF Transcon - Chicago to Los Angeles", "BNSF-TC-001",
@@ -127,6 +158,62 @@ public class DataInitializer implements CommandLineRunner {
                     "Galveston Sub", "Texas Division", bnsf,
                     32.7555, -97.3308, 29.3013, -94.7977);
 
+            // BNSF Seattle/Puget Sound Area Segments (Major hub!)
+            createRailSegment("BNSF Seattle Subdivision - Seattle to Everett", "BNSF-SEA-009",
+                    "Seattle, WA", "Everett, WA", 28.0, 60, TrackType.DOUBLE_TRACK,
+                    "Seattle Sub", "Puget Sound Division", bnsf,
+                    47.6062, -122.3321, 47.9790, -122.2021);
+
+            createRailSegment("BNSF Scenic Subdivision - Everett to Wenatchee", "BNSF-SCN-010",
+                    "Everett, WA", "Wenatchee, WA", 150.0, 60, TrackType.SINGLE_TRACK,
+                    "Scenic Sub", "Washington Division", bnsf,
+                    47.9790, -122.2021, 47.4235, -120.3103);
+
+            createRailSegment("BNSF Vancouver Subdivision - Seattle to Vancouver BC", "BNSF-VAN-011",
+                    "Seattle, WA", "Blaine, WA", 120.0, 79, TrackType.DOUBLE_TRACK,
+                    "Vancouver Sub", "Puget Sound Division", bnsf,
+                    47.6062, -122.3321, 48.9936, -122.7473);
+
+            createRailSegment("BNSF Edmonds Waterfront Line", "BNSF-EDM-012",
+                    "Edmonds, WA", "Mukilteo, WA", 8.5, 40, TrackType.DOUBLE_TRACK,
+                    "Seattle Sub", "Puget Sound Division", bnsf,
+                    47.8107, -122.3774, 47.9445, -122.3046);
+
+            createRailSegment("BNSF Bellingham Subdivision", "BNSF-BEL-013",
+                    "Everett, WA", "Bellingham, WA", 85.0, 60, TrackType.DOUBLE_TRACK,
+                    "Bellingham Sub", "Puget Sound Division", bnsf,
+                    47.9790, -122.2021, 48.7519, -122.4787);
+
+            createRailSegment("BNSF Stampede Pass - Auburn to Ellensburg", "BNSF-STP-014",
+                    "Auburn, WA", "Ellensburg, WA", 95.0, 50, TrackType.SINGLE_TRACK,
+                    "Stampede Sub", "Washington Division", bnsf,
+                    47.3073, -122.2285, 46.9965, -120.5478);
+
+            createRailSegment("BNSF Columbia River Gorge - Vancouver to Pasco", "BNSF-CRG-015",
+                    "Vancouver, WA", "Pasco, WA", 215.0, 60, TrackType.DOUBLE_TRACK,
+                    "Fallbridge Sub", "Washington Division", bnsf,
+                    45.6387, -122.6615, 46.2396, -119.1006);
+
+            createRailSegment("BNSF Lakewood Subdivision - Tacoma to Centralia", "BNSF-LKW-016",
+                    "Tacoma, WA", "Centralia, WA", 65.0, 60, TrackType.DOUBLE_TRACK,
+                    "Lakewood Sub", "Puget Sound Division", bnsf,
+                    47.2529, -122.4443, 46.7162, -122.9543);
+
+            createRailSegment("BNSF Seattle Harbor - Interbay Yard to Port of Seattle", "BNSF-SHB-017",
+                    "Interbay, Seattle", "Harbor Island, Seattle", 5.2, 25, TrackType.MULTIPLE_TRACK,
+                    "Seattle Harbor", "Puget Sound Division", bnsf,
+                    47.6470, -122.3750, 47.5739, -122.3539);
+
+            createRailSegment("BNSF New Castle Subdivision - Renton to Black Diamond", "BNSF-NCL-018",
+                    "Renton, WA", "Black Diamond, WA", 22.0, 40, TrackType.SINGLE_TRACK,
+                    "New Castle Sub", "Puget Sound Division", bnsf,
+                    47.4829, -122.2171, 47.3089, -122.0032);
+
+            createRailSegment("BNSF Woodinville Subdivision - Seattle to Snohomish", "BNSF-WDV-019",
+                    "Seattle, WA", "Snohomish, WA", 42.0, 40, TrackType.SINGLE_TRACK,
+                    "Woodinville Sub", "Puget Sound Division", bnsf,
+                    47.6629, -122.3186, 47.9129, -122.0982);
+
             // Union Pacific Segments
             createRailSegment("UP Overland Route - Oakland to Chicago", "UP-OR-001",
                     "Oakland, CA", "Chicago, IL", 2273.0, 70, TrackType.DOUBLE_TRACK,
@@ -152,6 +239,27 @@ public class DataInitializer implements CommandLineRunner {
                     "Portland, OR", "Seattle, WA", 186.0, 60, TrackType.SINGLE_TRACK,
                     "Brooklyn Sub", "Western Region", up,
                     45.5152, -122.6784, 47.6062, -122.3321);
+
+            // Union Pacific Seattle/Tacoma Area
+            createRailSegment("UP Seattle Subdivision - Seattle to Tacoma", "UP-SEA-020",
+                    "Seattle, WA", "Tacoma, WA", 32.0, 50, TrackType.DOUBLE_TRACK,
+                    "Seattle Sub", "Western Region", up,
+                    47.5952, -122.3316, 47.2529, -122.4443);
+
+            createRailSegment("UP Tacoma to Olympia", "UP-OLY-021",
+                    "Tacoma, WA", "Olympia, WA", 31.0, 50, TrackType.SINGLE_TRACK,
+                    "Olympia Sub", "Western Region", up,
+                    47.2529, -122.4443, 47.0379, -122.9007);
+
+            createRailSegment("UP East Portland to Vancouver WA", "UP-VAN-022",
+                    "Portland, OR", "Vancouver, WA", 12.0, 40, TrackType.DOUBLE_TRACK,
+                    "Vancouver Sub", "Western Region", up,
+                    45.5152, -122.6784, 45.6387, -122.6615);
+
+            createRailSegment("UP Argo Yard to Boeing Renton", "UP-ARG-023",
+                    "Argo Yard, Seattle", "Renton, WA", 14.5, 25, TrackType.SINGLE_TRACK,
+                    "Argo Industrial", "Western Region", up,
+                    47.5447, -122.3320, 47.4829, -122.2171);
 
             createRailSegment("UP Houston to San Antonio", "UP-HSA-006",
                     "Houston, TX", "San Antonio, TX", 197.0, 60, TrackType.SINGLE_TRACK,
@@ -235,9 +343,58 @@ public class DataInitializer implements CommandLineRunner {
                     "CNO&TP District", "Kentucky Division", ns,
                     39.1031, -84.5120, 38.2527, -85.7585);
 
+            // Sound Transit Sounder Commuter Rail (runs on BNSF tracks)
+            createRailSegment("Sounder North Line - Seattle to Everett", "ST-NTH-001",
+                    "King Street Station, Seattle", "Everett Station", 28.0, 79, TrackType.DOUBLE_TRACK,
+                    "North Line", "Sounder Service", soundTransit,
+                    47.5990, -122.3301, 47.9754, -122.1977);
+
+            createRailSegment("Sounder South Line - Seattle to Tacoma", "ST-STH-001",
+                    "King Street Station, Seattle", "Tacoma Dome Station", 35.0, 79, TrackType.DOUBLE_TRACK,
+                    "South Line", "Sounder Service", soundTransit,
+                    47.5990, -122.3301, 47.2428, -122.4280);
+
+            createRailSegment("Sounder South Line - Tacoma to Lakewood", "ST-STH-002",
+                    "Tacoma Dome Station", "Lakewood Station", 12.0, 79, TrackType.DOUBLE_TRACK,
+                    "South Line Extension", "Sounder Service", soundTransit,
+                    47.2428, -122.4280, 47.1717, -122.5182);
+
+            // Port of Seattle Terminal Railways
+            createRailSegment("Port of Seattle Terminal 5", "POS-T5-001",
+                    "Interbay Junction", "Terminal 5", 3.5, 15, TrackType.YARD_TRACK,
+                    "Terminal 5", "Harbor Operations", portSeattle,
+                    47.6470, -122.3750, 47.5839, -122.3622);
+
+            createRailSegment("Port of Seattle Terminal 18", "POS-T18-001",
+                    "Harbor Island Junction", "Terminal 18", 2.8, 15, TrackType.YARD_TRACK,
+                    "Terminal 18", "Harbor Operations", portSeattle,
+                    47.5739, -122.3539, 47.5649, -122.3489);
+
+            createRailSegment("Port of Seattle Terminal 46", "POS-T46-001",
+                    "East Marginal Way", "Terminal 46", 2.2, 15, TrackType.YARD_TRACK,
+                    "Terminal 46", "Harbor Operations", portSeattle,
+                    47.5739, -122.3539, 47.5572, -122.3380);
+
+            // Tacoma Rail
+            createRailSegment("Tacoma Rail Mountain Division - Tacoma to Morton", "TMBL-MTN-001",
+                    "Tacoma, WA", "Morton, WA", 88.0, 25, TrackType.SINGLE_TRACK,
+                    "Mountain Division", "Tacoma Operations", tacomaRail,
+                    47.2529, -122.4443, 46.5581, -122.2771);
+
+            createRailSegment("Tacoma Rail Tideflats Industrial", "TMBL-TID-001",
+                    "Tacoma Yard", "Port of Tacoma", 8.5, 15, TrackType.INDUSTRIAL_TRACK,
+                    "Tideflats", "Port Operations", tacomaRail,
+                    47.2448, -122.4381, 47.2681, -122.4231);
+
+            createRailSegment("Tacoma Rail East End - Tacoma to Frederickson", "TMBL-EE-001",
+                    "Tacoma, WA", "Frederickson, WA", 15.0, 25, TrackType.SINGLE_TRACK,
+                    "East End", "Tacoma Operations", tacomaRail,
+                    47.2529, -122.4443, 47.0909, -122.3593);
+
             System.out.println("Rail Segments initialized successfully!");
         }
     }
+
 
     private void createRailSegment(String name, String code, String startLocation,
                                    String endLocation, Double lengthMiles, Integer maxSpeed,
