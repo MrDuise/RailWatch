@@ -22,13 +22,13 @@ public interface RailSegmentRepository extends JpaRepository<RailSegment, Long> 
 
     Optional<RailSegment> findBySegmentCode(String segmentCode);
 
-    List<RailSegment> findByNameContainingIgnoreCase(String name);
+    Optional<List<RailSegment>> findByNameContainingIgnoreCase(String name);
 
     @Query("SELECT rs FROM RailSegment rs WHERE rs.startLocation LIKE %:location% OR rs.endLocation LIKE %:location%")
-    List<RailSegment> findByLocation(@Param("location") String location);
+    Optional<List<RailSegment>> findByLocation(@Param("location") String location);
 
     @Query("SELECT rs FROM RailSegment rs WHERE rs.railroadCompany.code IN :companyCodes")
-    List<RailSegment> findByRailroadCompanyCodes(@Param("companyCodes") List<String> companyCodes);
+    Optional<List<RailSegment>> findByRailroadCompanyCodes(@Param("companyCodes") List<String> companyCodes);
 
     @Query(value = """
     SELECT *
