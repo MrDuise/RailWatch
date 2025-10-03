@@ -27,7 +27,7 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
-          cache: 'maven'  # Change to 'gradle' if using Gradle
+          cache: 'gradle'  # Change to 'gradle' if using Gradle
       
       - name: Run unit tests
         run: ./gradlew test --tests '*' --exclude-tests '**/*IntegrationTest' --exclude-tests '**/*IT'  # Excludes integration tests
@@ -57,7 +57,7 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
-          cache: 'maven'
+          cache: 'gradle'
       
       - name: Build with Maven
         run: ./gradlew build -x test
@@ -87,7 +87,7 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
-          cache: 'maven'
+          cache: 'gradle'
       
       - name: Run code quality checks
         run: mvn verify -DskipTests
