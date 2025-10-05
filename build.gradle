@@ -35,6 +35,11 @@ dependencies {
 	// PostGIS and Hibernate Spatial (for geometry types like Point and LineString)
 	implementation 'org.hibernate.orm:hibernate-spatial:6.3.1.Final'
 	implementation 'org.locationtech.jts:jts-core:1.19.0'
+
+	//testing
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation 'org.mockito:mockito-junit-jupiter'
 }
 
 tasks.named('test') {
