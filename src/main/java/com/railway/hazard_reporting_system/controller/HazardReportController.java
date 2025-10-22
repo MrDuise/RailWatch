@@ -1,10 +1,14 @@
 package com.railway.hazard_reporting_system.controller;
 
 import com.railway.hazard_reporting_system.entity.core.HazardReport;
+import com.railway.hazard_reporting_system.entity.core.User;
+import com.railway.hazard_reporting_system.repository.UserRepository;
 import com.railway.hazard_reporting_system.request.CreateHazardReportRequest;
+import com.railway.hazard_reporting_system.response.HazardReportResponse;
 import com.railway.hazard_reporting_system.service.HazardReportingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +19,10 @@ import java.util.List;
 @RequestMapping("/hazard-reports")
 @CrossOrigin(origins = "*")
 public class HazardReportController {
+
+    // Add this to your controller
+    @Autowired
+    private UserRepository userRepository;
 
     private static final Logger log = LoggerFactory.getLogger(HazardReportController.class);
 
@@ -29,7 +37,7 @@ public class HazardReportController {
      * POST /hazard-reports
      */
     @PostMapping
-    public ResponseEntity<HazardReport> createHazardReport(@RequestBody CreateHazardReportRequest request) {
+    public ResponseEntity<HazardReportResponse> createHazardReport(@RequestBody CreateHazardReportRequest request) {
         log.info("Creating hazard report: {}", request.getTitle());
 
         try {
@@ -43,7 +51,8 @@ public class HazardReportController {
                     request.getLongitude()
             );
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(HazardReportResponse.fromEntity(created));
         } catch (IllegalArgumentException e) {
             log.error("Invalid hazard report request: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -118,6 +127,8 @@ public class HazardReportController {
     /**
      * Helper method to convert request DTO to entity
      */
+
+
     private HazardReport convertToEntity(CreateHazardReportRequest request) {
         HazardReport report = new HazardReport();
         report.setTitle(request.getTitle());
@@ -129,7 +140,17 @@ public class HazardReportController {
         report.setTrafficImpact(request.getTrafficImpact());
         report.setAttachmentBase64(request.getAttachmentBase64());
 
-        // Note: Reporter and RailSegment will be set by the service
+        // IMPORTANT: Set the reporter (User)
+        if (request.getReporterId() != null) {
+            User reporter = userRepository.findById(request.getReporterId())
+                    .orElseThrow(() -> new IllegalArgumentException("Reporter user not found"));
+            report.setReporter(reporter);
+        } else {
+            // Use a default user if no reporter specified (for testing)
+            User defaultReporter = userRepository.findById(1L)
+                    .orElseThrow(() -> new IllegalArgumentException("Default reporter not found"));
+            report.setReporter(defaultReporter);
+        }
 
         return report;
     }
