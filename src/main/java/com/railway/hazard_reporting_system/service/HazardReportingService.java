@@ -125,6 +125,16 @@ public class HazardReportingService {
                         !h.getStatus().name().equals("CLOSED"))
                 .toList();
     }
+
+    /**
+     * simple method for finding a report by the id
+     * @param hazardId
+     * @return
+     */
+    public HazardReport getHazardsById(Long hazardId){
+        return hazardReportRepository.findById(hazardId)
+                .orElseThrow(() -> new IllegalArgumentException("Hazard report not found"));
+    }
 }
 
 

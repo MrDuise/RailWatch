@@ -22,6 +22,7 @@ public class AlertDispatchService {
         // TODO: Implement actual alert dispatch
         // - Send email to railroad company dispatch
         // - Send SMS to on-duty inspectors
+        //just do the websocket for now, the others are extra
         // - Trigger WebSocket notification to dashboard
         // - Create push notifications for mobile apps
     }

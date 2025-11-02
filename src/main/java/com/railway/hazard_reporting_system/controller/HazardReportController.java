@@ -91,38 +91,45 @@ public class HazardReportController {
     public ResponseEntity<HazardReport> getHazardById(@PathVariable Long id) {
         log.debug("Getting hazard report by ID: {}", id);
 
-        // This would typically call hazardReportRepository.findById()
-        // For now, returning NOT_FOUND as placeholder
-        return ResponseEntity.notFound().build();
+        try{
+            HazardReport hazard = hazardReportingService.getHazardsById(id);
+            return ResponseEntity.ok(hazard);
+        } catch (Exception e){
+            log.error("Error retrieving hazard by id", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
-    /**
-     * Submit verification for a hazard report
-     * POST /hazard-reports/{id}/verification
-     * Note: VerificationService not included per requirements
-     */
-    @PostMapping("/{id}/verification")
-    public ResponseEntity<Void> submitVerification(
-            @PathVariable Long id,
-            @RequestBody Object verificationRequest) {
 
-        log.info("Verification submitted for hazard {}", id);
+    //Is extra for now. Since I'm not doing anything with hazards that already excist at the moment, this is not needed
 
-        // TODO: Implement when VerificationService is added
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-    }
-
-    /**
-     * Get verification status for a hazard report
-     * GET /hazard-reports/{id}/verification
-     */
-    @GetMapping("/{id}/verification")
-    public ResponseEntity<Object> getVerificationStatus(@PathVariable Long id) {
-        log.debug("Getting verification status for hazard {}", id);
-
-        // TODO: Implement when VerificationService is added
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-    }
+//    /**
+//     * Submit verification for a hazard report
+//     * POST /hazard-reports/{id}/verification
+//     * Note: VerificationService not included per requirements
+//     */
+//    @PostMapping("/{id}/verification")
+//    public ResponseEntity<Void> submitVerification(
+//            @PathVariable Long id,
+//            @RequestBody Object verificationRequest) {
+//
+//        log.info("Verification submitted for hazard {}", id);
+//
+//        // TODO: Implement when VerificationService is added
+//        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+//    }
+//
+//    /**
+//     * Get verification status for a hazard report
+//     * GET /hazard-reports/{id}/verification
+//     */
+//    @GetMapping("/{id}/verification")
+//    public ResponseEntity<Object> getVerificationStatus(@PathVariable Long id) {
+//        log.debug("Getting verification status for hazard {}", id);
+//
+//        // TODO: Implement when VerificationService is added
+//        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+//    }
 
     /**
      * Helper method to convert request DTO to entity
