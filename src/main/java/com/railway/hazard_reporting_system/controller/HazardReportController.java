@@ -51,6 +51,8 @@ public class HazardReportController {
                     request.getLongitude()
             );
 
+            alertDispatch.dispatchAlert(HazardReportResponse.fromEntity(created));
+
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(HazardReportResponse.fromEntity(created));
         } catch (IllegalArgumentException e) {
