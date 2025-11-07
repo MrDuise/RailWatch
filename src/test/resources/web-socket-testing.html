@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RailWatch WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .connected { background: #d4edda; color: #155724; }
+        .disconnected { background: #f8d7da; color: #721c24; }
+        .connecting { background: #fff3cd; color: #856404; }
+        .message {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message h3 {
+            margin: 0 0 10px 0;
+            color: #007bff;
+        }
+        .message .timestamp {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.danger {
+            background: #dc3545;
+        }
+        button.danger:hover {
+            background: #c82333;
+        }
+        #messages {
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            min-height: 300px;
+            max-height: 600px;
+            overflow-y: auto;
+            background: white;
+        }
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>RailWatch WebSocket Test</h1>
+
+    <div id="status" class="status connecting">
+         Connecting to WebSocket...
+    </div>
+
+    <div>
+        <button onclick="connect()">Connect</button>
+        <button onclick="disconnect()" class="danger">Disconnect</button>
+        <button onclick="clearMessages()">Clear Messages</button>
+    </div>
+
+    <h2>Received Messages:</h2>
+    <div id="messages">
+        <div class="empty-state">Waiting for messages...</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+
+<script>
+    let stompClient = null;
+    let messageCount = 0;
+
+    function setStatus(message, type) {
+        const statusDiv = document.getElementById('status');
+        statusDiv.textContent = message;
+        statusDiv.className = 'status ' + type;
+    }
+
+    function connect() {
+        setStatus('Connecting to WebSocket...', 'connecting');
+
+        const socket = new SockJS('http://localhost:8080/ws');
+        stompClient = new StompJs.Client({
+            webSocketFactory: () => socket,
+            debug: (str) => {
+                console.log('STOMP:', str);
+            },
+            reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+            onConnect: (frame) => {
+                setStatus('Connected to RailWatch WebSocket!', 'connected');
+                console.log('Connected!', frame);
+
+                // Subscribe to all hazard topics
+                stompClient.subscribe('/topic/hazards/new', (message) => {
+                    console.log('Received new hazard:', message);
+                    const hazard = JSON.parse(message.body);
+                    addMessage('NEW HAZARD', hazard, '#dc3545');
+                });
+
+                stompClient.subscribe('/topic/hazards/acknowledged', (message) => {
+                    console.log('✅ Received acknowledgment:', message);
+                    const hazard = JSON.parse(message.body);
+                    addMessage('✅ HAZARD ACKNOWLEDGED', hazard, '#28a745');
+                });
+
+                stompClient.subscribe('/topic/hazards/resolved', (message) => {
+                    console.log('🎉 Received resolution:', message);
+                    const hazard = JSON.parse(message.body);
+                    addMessage('🎉 HAZARD RESOLVED', hazard, '#17a2b8');
+                });
+
+                console.log('✅ All subscriptions active!');
+                clearEmptyState();
+            },
+            onStompError: (frame) => {
+                setStatus('❌ Error: ' + frame.headers['message'], 'disconnected');
+                console.error('❌ STOMP error:', frame);
+            },
+            onWebSocketClose: (event) => {
+                setStatus('❌ WebSocket connection closed', 'disconnected');
+                console.log('Connection closed:', event);
+            },
+            onDisconnect: () => {
+                setStatus('❌ Disconnected from WebSocket', 'disconnected');
+            }
+        });
+
+        stompClient.activate();
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.deactivate();
+            setStatus('❌ Disconnected', 'disconnected');
+        }
+    }
+
+    function addMessage(type, data, color) {
+        const messagesDiv = document.getElementById('messages');
+        const timestamp = new Date().toLocaleTimeString();
+        messageCount++;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+        messageDiv.innerHTML = `
+            <h3 style="color: ${color}">
+                [${timestamp}] ${type}
+                <span class="timestamp">#${messageCount}</span>
+            </h3>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+        `;
+
+        messagesDiv.insertBefore(messageDiv, messagesDiv.firstChild);
+    }
+
+    function clearMessages() {
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML = '<div class="empty-state">Waiting for messages...</div>';
+        messageCount = 0;
+    }
+
+    function clearEmptyState() {
+        const messagesDiv = document.getElementById('messages');
+        const emptyState = messagesDiv.querySelector('.empty-state');
+        if (emptyState) {
+            emptyState.remove();
+        }
+    }
+
+    // Auto-connect on page load
+    window.onload = function() {
+        console.log('Page loaded, connecting...');
+        connect();
+    };
+
+    // Log when page is closed
+    window.onbeforeunload = function() {
+        if (stompClient) {
+            disconnect();
+        }
+    };
+</script>
+</body>
+</html>

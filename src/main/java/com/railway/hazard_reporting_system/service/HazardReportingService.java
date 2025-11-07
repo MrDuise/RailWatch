@@ -19,20 +19,12 @@ public class HazardReportingService {
     private final HazardReportRepository hazardReportRepository;
     private final LocationService locationService;
     //private final PriorityAssessmentService priorityService;
-    private final AlertDispatchService alertService;
+
     //private final MediaService mediaService;
 
-    public HazardReportingService(
-            HazardReportRepository repo,
-            LocationService locService,
-
-            AlertDispatchService alService
-            ) {
+    public HazardReportingService(HazardReportRepository repo, LocationService locService) {
         this.hazardReportRepository = repo;
         this.locationService = locService;
-
-        this.alertService = alService;
-
     }
 
     /**
@@ -61,10 +53,6 @@ public class HazardReportingService {
         // Save the report
         HazardReport saved = hazardReportRepository.save(report);
 
-        // Dispatch alerts if high priority
-        if (priorityScore >= 7) {
-            alertService.dispatchAlert(saved);
-        }
 
         log.info("Hazard report created with ID={}, priority={}", saved.getId(), priorityScore);
         return saved;

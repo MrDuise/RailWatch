@@ -6,6 +6,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+@Configuration
+@EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -16,7 +18,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")  // WebSocket connection endpoint
-                .setAllowedOrigins("*")
+                .setAllowedOrigins("http://127.0.0.1:5500/" )
                 .withSockJS();  // Fallback for older browsers
+
+
+        // Also add without SockJS for native WebSocket support
+        registry.addEndpoint("/ws")
+                .setAllowedOriginPatterns("*");
     }
+
+
 }

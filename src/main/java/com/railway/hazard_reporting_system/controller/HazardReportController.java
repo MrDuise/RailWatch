@@ -5,6 +5,7 @@ import com.railway.hazard_reporting_system.entity.core.User;
 import com.railway.hazard_reporting_system.repository.UserRepository;
 import com.railway.hazard_reporting_system.request.CreateHazardReportRequest;
 import com.railway.hazard_reporting_system.response.HazardReportResponse;
+import com.railway.hazard_reporting_system.service.AlertDispatchService;
 import com.railway.hazard_reporting_system.service.HazardReportingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +25,16 @@ public class HazardReportController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AlertDispatchService alertDispatch;
+
     private static final Logger log = LoggerFactory.getLogger(HazardReportController.class);
 
     private final HazardReportingService hazardReportingService;
 
-    public HazardReportController(HazardReportingService service) {
+    public HazardReportController(HazardReportingService service, AlertDispatchService dispatchService) {
         this.hazardReportingService = service;
+        this.alertDispatch = dispatchService;
     }
 
     /**
